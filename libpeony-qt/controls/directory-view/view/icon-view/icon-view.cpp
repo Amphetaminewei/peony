@@ -59,12 +59,16 @@
 #include <QDebug>
 #include <QToolTip>
 
+#include <QScroller>
+#include <QTimer>
+
 using namespace Peony;
 using namespace Peony::DirectoryView;
 
 IconView::IconView(QWidget *parent) : QListView(parent)
 {
     setAttribute(Qt::WA_TranslucentBackground);
+    setAttribute(Qt::WA_AcceptTouchEvents);
     viewport()->setAttribute(Qt::WA_TranslucentBackground);
 
     setStyle(IconViewStyle::getStyle());
@@ -106,7 +110,16 @@ IconView::IconView(QWidget *parent) : QListView(parent)
     m_renameTimer->setSingleShot(true);
     m_editValid = false;
 
+    m_touch_long_press_timer = new QTimer(this);
+
     setMouseTracking(true);//追踪鼠标
+
+    // 增加手指拖动
+    QScroller *sc = QScroller::scroller(this);
+    sc->grabGesture(this, QScroller::LeftMouseButtonGesture);
+
+//    installEventFilter(this);
+
 }
 
 IconView::~IconView()
@@ -613,6 +626,43 @@ void IconView::clearIndexWidget()
         setIndexWidget(index, nullptr);
         closePersistentEditor(index);
     }
+}
+
+bool IconView::eventFilter(QObject *object, QEvent *event)
+{
+    if (object != this)
+        return false;
+
+    switch (event->type()) {
+    case QEvent::TouchBegin: {
+        connect(m_touch_long_press_timer, &QTimer::timeout, this, [&]() {
+            m_is_touch_long_press = true;
+            m_touch_long_press_timer->stop();
+        });
+        m_touch_long_press_timer->start(1000);
+
+        return true;
+    }
+    case QEvent::TouchUpdate: {
+        return true;
+    }
+    case QEvent::TouchCancel:
+    case QEvent::TouchEnd: {
+        if (m_is_touch_long_press) {
+            auto e = static_cast<QTouchEvent*> (event);
+            Q_EMIT customContextMenuRequested(e->touchPoints().at(0).screenPos().toPoint());
+        }
+        else {
+            m_touch_long_press_timer->stop();
+        }
+        m_is_touch_long_press = false;
+        return true;
+    }
+    default:
+        break;
+    }
+
+    return false;
 }
 
 //Icon View 2

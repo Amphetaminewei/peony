@@ -157,6 +157,8 @@ protected:
     bool getIgnore_mouse_move_event() const;
     void setIgnore_mouse_move_event(bool ignore_mouse_move_event);
 
+    bool eventFilter(QObject *object, QEvent *event);
+
 private Q_SLOTS:
     void slotRename();
 
@@ -166,6 +168,7 @@ private:
     bool  m_editValid;
     bool  m_ctrl_key_pressed;
     QTimer* m_renameTimer;
+    QTimer* m_touch_long_press_timer;
 
     QModelIndex m_last_index;
 
@@ -191,6 +194,9 @@ private:
     bool m_allow_set_index_widget = true;
 
     bool m_slider_bar_draging = false;
+
+    bool m_is_touch_long_press = false;
+
 };
 
 //IconView2

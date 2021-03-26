@@ -56,7 +56,6 @@ X11WindowManager::X11WindowManager(QObject *parent) : QObject(parent)
 
 bool X11WindowManager::eventFilter(QObject *watched, QEvent *event)
 {
-    //qDebug()<<event->type();
 
     switch (event->type()) {
     case QEvent::TouchBegin:

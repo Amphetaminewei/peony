@@ -624,13 +624,13 @@ void TabWidget::handleZoomLevel(int zoomLevel)
 
     if (zoomLevel <= currentViewMaxZoomLevel && zoomLevel >= currentViewMimZoomLevel) {
         currentPage()->getView()->setCurrentZoomLevel(zoomLevel);
-    } else {
+    } /*else {
         //check which view to switch.
         auto directoryViewManager = Peony::DirectoryViewFactoryManager2::getInstance();
         auto viewId = directoryViewManager->getDefaultViewId(zoomLevel, getCurrentUri());
         switchViewType(viewId);
         currentPage()->getView()->setCurrentZoomLevel(zoomLevel);
-    }
+    }*/
 }
 
 void TabWidget::updateSearchBar(bool showSearch)
