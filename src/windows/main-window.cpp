@@ -171,13 +171,6 @@ MainWindow::~MainWindow()
 
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 {
-//    if (event->type() == QEvent::TouchBegin)
-//        return true;
-//    if (event->type() == QEvent::TouchUpdate)
-//        return true;
-//    if (event->type() == QEvent::TouchEnd)
-//        return true;
-
     if (event->type() == QEvent::MouseMove) {
         auto me = static_cast<QMouseEvent *>(event);
         auto widget = this->childAt(me->pos());
@@ -1136,60 +1129,56 @@ void MainWindow::mouseMoveEvent(QMouseEvent *e)
         return;
 
     qreal  dpiRatio = qApp->devicePixelRatio();
-    //! \note fix can not move window by touch
-//    this->move((QCursor::pos() - m_offset) * dpiRatio);
-    this->move(QCursor::pos() - m_offset);
+    if (QX11Info::isPlatformX11()) {
+        Display *display = QX11Info::display();
+        Atom netMoveResize = XInternAtom(display, "_NET_WM_MOVERESIZE", False);
+        XEvent xEvent;
+        const auto pos = QCursor::pos();
 
-//    if (QX11Info::isPlatformX11()) {
-//        Display *display = QX11Info::display();
-//        Atom netMoveResize = XInternAtom(display, "_NET_WM_MOVERESIZE", False);
-//        XEvent xEvent;
-//        const auto pos = QCursor::pos();
+        memset(&xEvent, 0, sizeof(XEvent));
+        xEvent.xclient.type = ClientMessage;
+        xEvent.xclient.message_type = netMoveResize;
+        xEvent.xclient.display = display;
+        xEvent.xclient.window = this->winId();
+        xEvent.xclient.format = 32;
+        xEvent.xclient.data.l[0] = pos.x() * dpiRatio;
+        xEvent.xclient.data.l[1] = pos.y() * dpiRatio;
+        xEvent.xclient.data.l[2] = 8;
+        xEvent.xclient.data.l[3] = Button1;
+        xEvent.xclient.data.l[4] = 0;
 
-//        memset(&xEvent, 0, sizeof(XEvent));
-//        xEvent.xclient.type = ClientMessage;
-//        xEvent.xclient.message_type = netMoveResize;
-//        xEvent.xclient.display = display;
-//        xEvent.xclient.window = this->winId();
-//        xEvent.xclient.format = 32;
-//        xEvent.xclient.data.l[0] = pos.x() * dpiRatio;
-//        xEvent.xclient.data.l[1] = pos.y() * dpiRatio;
-//        xEvent.xclient.data.l[2] = 8;
-//        xEvent.xclient.data.l[3] = Button1;
-//        xEvent.xclient.data.l[4] = 0;
+        XUngrabPointer(display, CurrentTime);
+        XSendEvent(display, QX11Info::appRootWindow(QX11Info::appScreen()),
+                   False, SubstructureNotifyMask | SubstructureRedirectMask,
+                   &xEvent);
+        //XFlush(display);
 
-//        XUngrabPointer(display, CurrentTime);
-//        XSendEvent(display, QX11Info::appRootWindow(QX11Info::appScreen()),
-//                   False, SubstructureNotifyMask | SubstructureRedirectMask,
-//                   &xEvent);
-//        //XFlush(display);
+        XEvent xevent;
+        memset(&xevent, 0, sizeof(XEvent));
 
-//        XEvent xevent;
-//        memset(&xevent, 0, sizeof(XEvent));
+        xevent.type = ButtonRelease;
+        xevent.xbutton.button = Button1;
+        xevent.xbutton.window = this->winId();
+        xevent.xbutton.x = e->pos().x() * dpiRatio;
+        xevent.xbutton.y = e->pos().y() * dpiRatio;
+        xevent.xbutton.x_root = pos.x() * dpiRatio;
+        xevent.xbutton.y_root = pos.y() * dpiRatio;
+        xevent.xbutton.display = display;
 
-//        xevent.type = ButtonRelease;
-//        xevent.xbutton.button = Button1;
-//        xevent.xbutton.window = this->winId();
-//        xevent.xbutton.x = e->pos().x() * dpiRatio;
-//        xevent.xbutton.y = e->pos().y() * dpiRatio;
-//        xevent.xbutton.x_root = pos.x() * dpiRatio;
-//        xevent.xbutton.y_root = pos.y() * dpiRatio;
-//        xevent.xbutton.display = display;
+        XSendEvent(display, this->effectiveWinId(), False, ButtonReleaseMask, &xevent);
+        XFlush(display);
 
-//        XSendEvent(display, this->effectiveWinId(), False, ButtonReleaseMask, &xevent);
-//        XFlush(display);
+        if (e->source() == Qt::MouseEventSynthesizedByQt) {
+            if (!this->mouseGrabber()) {
+                this->grabMouse();
+                this->releaseMouse();
+            }
+        }
 
-//        if (e->source() == Qt::MouseEventSynthesizedByQt) {
-//            if (!this->mouseGrabber()) {
-//                this->grabMouse();
-//                this->releaseMouse();
-//            }
-//        }
-
-//        m_is_draging = false;
-//    } else {
-//        this->move((QCursor::pos() - m_offset) * dpiRatio);
-//    }
+        m_is_draging = false;
+    } else {
+        this->move((QCursor::pos() - m_offset) * dpiRatio);
+    }
 }
 
 void MainWindow::mouseReleaseEvent(QMouseEvent *e)

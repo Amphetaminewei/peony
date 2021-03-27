@@ -57,8 +57,6 @@
 
 #include <QStyleOptionViewItem>
 
-#include <QScroller>
-
 using namespace Peony;
 using namespace Peony::DirectoryView;
 
@@ -103,11 +101,6 @@ ListView::ListView(QWidget *parent) : QTreeView(parent)
     setMouseTracking(true);//追踪鼠标
 
     m_rubberBand = new QRubberBand(QRubberBand::Shape::Rectangle, this);
-
-    // 增加手指拖动
-    QScroller *sc = QScroller::scroller(this);
-    sc->grabGesture(this, QScroller::LeftMouseButtonGesture);
-
 }
 
 void ListView::scrollTo(const QModelIndex &index, QAbstractItemView::ScrollHint hint)

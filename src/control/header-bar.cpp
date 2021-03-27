@@ -211,34 +211,34 @@ HeaderBar::HeaderBar(MainWindow *parent) : QToolBar(parent)
 
     addSpacing(DRAG_AREA_DEFAULT_WIDTH);
 
-//    auto a = addAction(QIcon::fromTheme("view-grid-symbolic"), tr("View Type"));
-//    auto viewType = qobject_cast<QToolButton *>(widgetForAction(a));
-//    viewType->setAutoRaise(false);
-//    viewType->setFixedSize(QSize(57, 40));
-//    viewType->setIconSize(QSize(16, 16));
-//    viewType->setPopupMode(QToolButton::InstantPopup);
+    auto a = addAction(QIcon::fromTheme("view-grid-symbolic"), tr("View Type"));
+    auto viewType = qobject_cast<QToolButton *>(widgetForAction(a));
+    viewType->setAutoRaise(false);
+    viewType->setFixedSize(QSize(57, 40));
+    viewType->setIconSize(QSize(16, 16));
+    viewType->setPopupMode(QToolButton::InstantPopup);
 
-//    m_view_type_menu = new ViewTypeMenu(viewType);
-//    a->setMenu(m_view_type_menu);
+    m_view_type_menu = new ViewTypeMenu(viewType);
+    a->setMenu(m_view_type_menu);
 
-//    connect(m_view_type_menu, &ViewTypeMenu::switchViewRequest, this, [=](const QString &id, const QIcon &icon, bool resetToZoomLevel) {
-//        viewType->setText(id);
-//        viewType->setIcon(icon);
-//        this->viewTypeChangeRequest(id);
-//        if (resetToZoomLevel) {
-//            auto viewId = m_window->getCurrentPage()->getView()->viewId();
-//            auto factoryManger = Peony::DirectoryViewFactoryManager2::getInstance();
-//            auto factory = factoryManger->getFactory(viewId);
-//            int zoomLevelHint = factory->zoom_level_hint();
-//            m_window->getCurrentPage()->setZoomLevelRequest(zoomLevelHint);
-//        }
-//    });
+    connect(m_view_type_menu, &ViewTypeMenu::switchViewRequest, this, [=](const QString &id, const QIcon &icon, bool resetToZoomLevel) {
+        viewType->setText(id);
+        viewType->setIcon(icon);
+        this->viewTypeChangeRequest(id);
+        if (resetToZoomLevel) {
+            auto viewId = m_window->getCurrentPage()->getView()->viewId();
+            auto factoryManger = Peony::DirectoryViewFactoryManager2::getInstance();
+            auto factory = factoryManger->getFactory(viewId);
+            int zoomLevelHint = factory->zoom_level_hint();
+            m_window->getCurrentPage()->setZoomLevelRequest(zoomLevelHint);
+        }
+    });
 
-//    connect(m_view_type_menu, &ViewTypeMenu::updateZoomLevelHintRequest, this, &HeaderBar::updateZoomLevelHintRequest);
+    connect(m_view_type_menu, &ViewTypeMenu::updateZoomLevelHintRequest, this, &HeaderBar::updateZoomLevelHintRequest);
 
-//    addSpacing(2);
+    addSpacing(2);
 
-    auto a = addAction(QIcon::fromTheme("view-sort-ascending-symbolic"), tr("Sort Type"));
+    a = addAction(QIcon::fromTheme("view-sort-ascending-symbolic"), tr("Sort Type"));
     auto sortType = qobject_cast<QToolButton *>(widgetForAction(a));
     sortType->setAutoRaise(false);
     sortType->setFixedSize(QSize(57, 40));
@@ -316,7 +316,7 @@ HeaderBar::HeaderBar(MainWindow *parent) : QToolBar(parent)
     m_focus_list<<(goBack);
     m_focus_list<<(goForward);
     m_focus_list<<(search);
-//    m_focus_list<<(viewType);
+    m_focus_list<<(viewType);
     m_focus_list<<(sortType);
     m_focus_list<<(popMenu);
 }
@@ -475,8 +475,8 @@ void HeaderBar::updateIcons()
     qDebug()<<"updateIcons:" <<m_window->getCurrentUri();
     qDebug()<<"updateIcons:" <<m_window->getCurrentSortColumn();
     qDebug()<<"updateIcons:" <<m_window->getCurrentSortOrder();
-//    m_view_type_menu->setCurrentDirectory(m_window->getCurrentUri());
-//    m_view_type_menu->setCurrentView(m_window->getCurrentPage()->getView()->viewId(), true);
+    m_view_type_menu->setCurrentDirectory(m_window->getCurrentUri());
+    m_view_type_menu->setCurrentView(m_window->getCurrentPage()->getView()->viewId(), true);
     m_sort_type_menu->switchSortTypeRequest(m_window->getCurrentSortColumn());
     m_sort_type_menu->switchSortOrderRequest(m_window->getCurrentSortOrder());
 
