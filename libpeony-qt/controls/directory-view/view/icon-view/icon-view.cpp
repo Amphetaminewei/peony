@@ -59,6 +59,8 @@
 #include <QDebug>
 #include <QToolTip>
 
+#include <QScroller>
+
 using namespace Peony;
 using namespace Peony::DirectoryView;
 
@@ -107,6 +109,19 @@ IconView::IconView(QWidget *parent) : QListView(parent)
     m_editValid = false;
 
     setMouseTracking(true);//追踪鼠标
+
+    QScroller::scroller(this)->grabGesture(this, QScroller::LeftMouseButtonGesture);
+
+    m_long_touch_timer = new QTimer(this);
+    connect(m_long_touch_timer, &QTimer::timeout, [&]() {
+        m_long_touch_timer->stop();
+
+        auto current_pos = this->mapFromGlobal(QCursor::pos());
+        if (qAbs(m_last_touch_pos.x() - current_pos.x()) < 5
+            && qAbs(m_last_touch_pos.y() - current_pos.y()) < 5) {
+            Q_EMIT IconView::customContextMenuRequested(current_pos);
+        }
+    });
 }
 
 IconView::~IconView()
@@ -299,9 +314,13 @@ void IconView::mouseMoveEvent(QMouseEvent *e)
 
 void IconView::mousePressEvent(QMouseEvent *e)
 {
+    if (e->source() == Qt::MouseEventSynthesizedByQt) {
+        m_long_touch_timer->start(1000);
+        m_last_touch_pos = e->pos();
+    }
+
     m_allow_set_index_widget = true;
 
-    qDebug()<<"moursePressEvent";
     m_editValid = true;
     QListView::mousePressEvent(e);
 
@@ -331,6 +350,9 @@ void IconView::mousePressEvent(QMouseEvent *e)
 
 void IconView::mouseReleaseEvent(QMouseEvent *e)
 {
+    if (e->source() == Qt::MouseEventSynthesizedByQt) {
+        m_long_touch_timer->stop();
+    }
     QListView::mouseReleaseEvent(e);
 
     if (e->button() != Qt::LeftButton) {
@@ -463,6 +485,15 @@ void IconView::bindModel(FileItemModel *sourceModel, FileItemProxyFilterSortMode
     connect(this->selectionModel(), &QItemSelectionModel::selectionChanged, [=](const QItemSelection &selection, const QItemSelection &deselection) {
         qDebug()<<"selection changed";
         auto currentSelections = selection.indexes();
+
+        if (currentSelections.count() == 0) {
+            if (!QScroller::hasScroller(this))
+                QScroller::scroller(this)->grabGesture(this, QScroller::LeftMouseButtonGesture);
+        }
+        else {
+            if (QScroller::hasScroller(this))
+                QScroller::scroller(this)->deleteLater();
+        }
 
         for (auto index : deselection.indexes()) {
             this->setIndexWidget(index, nullptr);

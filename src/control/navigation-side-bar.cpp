@@ -62,6 +62,8 @@
 
 #include <QDebug>
 
+#include <QScroller>
+
 using namespace Peony;
 
 NavigationSideBar::NavigationSideBar(QWidget *parent) : QTreeView(parent)
@@ -242,11 +244,38 @@ NavigationSideBar::NavigationSideBar(QWidget *parent) : QTreeView(parent)
     });
 
     expandAll();
+    QScroller::scroller(this)->grabGesture(this, QScroller::LeftMouseButtonGesture);
+    m_long_touch_timer = new QTimer(this);
+    connect(m_long_touch_timer, &QTimer::timeout, [&](){
+        m_long_touch_timer->stop();
+
+        auto current_pos = this->mapFromGlobal(QCursor::pos());
+        if (qAbs(m_last_touch_pos.x() - current_pos.x()) < 5
+            && qAbs(m_last_touch_pos.y() - current_pos.y()) < 5) {
+            Q_EMIT QTreeView::customContextMenuRequested(current_pos);
+        }
+    });
 }
 
 bool NavigationSideBar::eventFilter(QObject *obj, QEvent *e)
 {
     return false;
+}
+
+void NavigationSideBar::mousePressEvent(QMouseEvent *event)
+{
+    if (event->source() == Qt::MouseEventSynthesizedByQt) {
+        m_long_touch_timer->start(1000);
+        m_last_touch_pos = event->pos();
+    }
+    QTreeView::mousePressEvent(event);
+}
+
+void NavigationSideBar::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (m_long_touch_timer->isActive())
+        m_long_touch_timer->stop();
+    QTreeView::mouseReleaseEvent(event);
 }
 
 void NavigationSideBar::updateGeometries()

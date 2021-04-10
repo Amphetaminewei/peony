@@ -191,6 +191,9 @@ private:
     bool m_allow_set_index_widget = true;
 
     bool m_slider_bar_draging = false;
+
+    QTimer* m_long_touch_timer = nullptr;
+    QPoint m_last_touch_pos;
 };
 
 //IconView2

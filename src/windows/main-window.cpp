@@ -1129,6 +1129,13 @@ void MainWindow::mouseMoveEvent(QMouseEvent *e)
         return;
 
     qreal  dpiRatio = qApp->devicePixelRatio();
+    //! \note add for touch
+    //! touch can not drag
+    if (e->source() == Qt::MouseEventSynthesizedByQt) {
+        this->move((QCursor::pos() - m_offset) * dpiRatio);
+        return;
+    }
+
     if (QX11Info::isPlatformX11()) {
         Display *display = QX11Info::display();
         Atom netMoveResize = XInternAtom(display, "_NET_WM_MOVERESIZE", False);

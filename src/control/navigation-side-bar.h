@@ -58,10 +58,14 @@ Q_SIGNALS:
 protected:
     void keyPressEvent(QKeyEvent *event);
     void focusInEvent(QFocusEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
 
 private:
     Peony::SideBarProxyFilterSortModel *m_proxy_model;
     Peony::SideBarModel *m_model;
+    QTimer* m_long_touch_timer = nullptr;
+    QPoint m_last_touch_pos;
 };
 
 class NavigationSideBarContainer : public QWidget
