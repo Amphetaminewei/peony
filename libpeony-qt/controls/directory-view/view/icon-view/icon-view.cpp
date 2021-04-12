@@ -487,8 +487,14 @@ void IconView::bindModel(FileItemModel *sourceModel, FileItemProxyFilterSortMode
         auto currentSelections = selection.indexes();
 
         if (currentSelections.count() == 0) {
-            if (!QScroller::hasScroller(this))
+            if (!QScroller::hasScroller(this)) {
+                //! 在没有选中item时使用滚动，发送一对虚假事件，为了selection change之后的第一次滑动是滚动
                 QScroller::scroller(this)->grabGesture(this, QScroller::LeftMouseButtonGesture);
+                QMouseEvent fakeReleaseEvent(QMouseEvent::MouseButtonRelease, mapFromGlobal(QCursor::pos()), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+                qApp->sendEvent(viewport(), &fakeReleaseEvent);
+                QMouseEvent fakePressEvent(QMouseEvent::MouseButtonPress, mapFromGlobal(QCursor::pos()), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+                qApp->sendEvent(viewport(), &fakePressEvent);
+            }
         }
         else {
             if (QScroller::hasScroller(this))
