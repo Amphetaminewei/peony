@@ -105,6 +105,17 @@ ListView::ListView(QWidget *parent) : QTreeView(parent)
     m_rubberBand = new QRubberBand(QRubberBand::Shape::Rectangle, this);
 
     QScroller::scroller(this)->grabGesture(this, QScroller::LeftMouseButtonGesture);
+    auto props = QScroller::scroller(this)->scrollerProperties();
+    props.setScrollMetric(QScrollerProperties::FrameRate, QScrollerProperties::Fps60);
+    props.setScrollMetric(QScrollerProperties::AxisLockThreshold, 0.33);
+    props.setScrollMetric(QScrollerProperties::MaximumClickThroughVelocity, 0);
+    props.setScrollMetric(QScrollerProperties::DecelerationFactor, 0.7); // 减速到0需要的时间，值越大时间越短
+    props.setScrollMetric(QScrollerProperties::MaximumVelocity, 0.5);
+    props.setScrollMetric(QScrollerProperties::OvershootDragResistanceFactor, 0.33);
+    props.setScrollMetric(QScrollerProperties::OvershootScrollDistanceFactor, 0.33);
+    props.setScrollMetric(QScrollerProperties::SnapPositionRatio, 0.33);
+    props.setScrollMetric(QScrollerProperties::DragStartDistance, 0.001);
+    QScroller::scroller(this)->setScrollerProperties(props);
     setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     header()->resizeSections(QHeaderView::Stretch);
 }

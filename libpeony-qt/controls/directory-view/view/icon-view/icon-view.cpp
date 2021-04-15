@@ -60,6 +60,7 @@
 #include <QToolTip>
 
 #include <QScroller>
+#include <QEasingCurve>
 
 using namespace Peony;
 using namespace Peony::DirectoryView;
@@ -112,6 +113,17 @@ IconView::IconView(QWidget *parent) : QListView(parent)
 
     QScroller::scroller(this)->grabGesture(this, QScroller::LeftMouseButtonGesture);
     setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    auto props = QScroller::scroller(this)->scrollerProperties();
+    props.setScrollMetric(QScrollerProperties::FrameRate, QScrollerProperties::Fps60);
+    props.setScrollMetric(QScrollerProperties::AxisLockThreshold, 0.33);
+    props.setScrollMetric(QScrollerProperties::MaximumClickThroughVelocity, 0);
+    props.setScrollMetric(QScrollerProperties::DecelerationFactor, 0.7); // 减速到0需要的时间，值越大时间越短
+    props.setScrollMetric(QScrollerProperties::MaximumVelocity, 0.5);
+    props.setScrollMetric(QScrollerProperties::OvershootDragResistanceFactor, 0.33);
+    props.setScrollMetric(QScrollerProperties::OvershootScrollDistanceFactor, 0.33);
+    props.setScrollMetric(QScrollerProperties::SnapPositionRatio, 0.33);
+//    props.setScrollMetric(QScrollerProperties::DragStartDistance, 0);
+    QScroller::scroller(this)->setScrollerProperties(props);
 
     m_long_touch_timer = new QTimer(this);
     connect(m_long_touch_timer, &QTimer::timeout, [&]() {
