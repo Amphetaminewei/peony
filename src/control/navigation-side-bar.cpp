@@ -244,6 +244,8 @@ NavigationSideBar::NavigationSideBar(QWidget *parent) : QTreeView(parent)
     });
 
     expandAll();
+
+    setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     QScroller::scroller(this)->grabGesture(this, QScroller::LeftMouseButtonGesture);
     m_long_touch_timer = new QTimer(this);
     connect(m_long_touch_timer, &QTimer::timeout, [&](){

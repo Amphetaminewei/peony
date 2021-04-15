@@ -57,6 +57,8 @@
 
 #include <QStyleOptionViewItem>
 
+#include <QScroller>
+
 using namespace Peony;
 using namespace Peony::DirectoryView;
 
@@ -101,6 +103,10 @@ ListView::ListView(QWidget *parent) : QTreeView(parent)
     setMouseTracking(true);//追踪鼠标
 
     m_rubberBand = new QRubberBand(QRubberBand::Shape::Rectangle, this);
+
+    QScroller::scroller(this)->grabGesture(this, QScroller::LeftMouseButtonGesture);
+    setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    header()->resizeSections(QHeaderView::Stretch);
 }
 
 void ListView::scrollTo(const QModelIndex &index, QAbstractItemView::ScrollHint hint)
@@ -422,6 +428,7 @@ void ListView::dropEvent(QDropEvent *e)
 void ListView::resizeEvent(QResizeEvent *e)
 {
     QTreeView::resizeEvent(e);
+
     if (m_last_size != size()) {
         m_last_size = size();
         adjustColumnsSize();
@@ -577,7 +584,7 @@ void ListView::adjustColumnsSize()
     if (model()->columnCount() == 0)
         return;
 
-    header()->resizeSections(QHeaderView::ResizeToContents);
+//    header()->resizeSections(QHeaderView::ResizeToContents);
 
     int rightPartsSize = 0;
     for (int column = 1; column < model()->columnCount(); column++) {
