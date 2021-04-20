@@ -1132,7 +1132,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent *e)
     //! \note add for touch
     //! touch can not drag
     if (e->source() == Qt::MouseEventSynthesizedByQt) {
-        this->move((QCursor::pos() - m_offset) * dpiRatio);
+        this->move((QCursor::pos() - m_offset)/* * dpiRatio*/);
         return;
     }
 

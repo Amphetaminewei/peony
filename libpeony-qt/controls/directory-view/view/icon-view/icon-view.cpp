@@ -111,7 +111,7 @@ IconView::IconView(QWidget *parent) : QListView(parent)
 
     setMouseTracking(true);//追踪鼠标
 
-    QScroller::scroller(this)->grabGesture(this, QScroller::LeftMouseButtonGesture);
+    QScroller::scroller(this)->grabGesture(this->viewport(), QScroller::LeftMouseButtonGesture);
     setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     auto props = QScroller::scroller(this)->scrollerProperties();
     props.setScrollMetric(QScrollerProperties::FrameRate, QScrollerProperties::Fps60);
@@ -123,7 +123,7 @@ IconView::IconView(QWidget *parent) : QListView(parent)
     props.setScrollMetric(QScrollerProperties::OvershootScrollDistanceFactor, 0.33);
     props.setScrollMetric(QScrollerProperties::SnapPositionRatio, 0.33);
 //    props.setScrollMetric(QScrollerProperties::DragStartDistance, 0);
-    QScroller::scroller(this)->setScrollerProperties(props);
+    QScroller::scroller(this->viewport())->setScrollerProperties(props);
 
     m_long_touch_timer = new QTimer(this);
     connect(m_long_touch_timer, &QTimer::timeout, [&]() {
@@ -312,6 +312,13 @@ void IconView::dropEvent(QDropEvent *e)
 
 void IconView::mouseMoveEvent(QMouseEvent *e)
 {
+    if (m_long_touch_timer->isActive()) {
+        if (qAbs(m_last_touch_pos.x() - e->x() > 5)
+                || qAbs(m_last_touch_pos.y() - e->y() > 5)) {
+            m_long_touch_timer->stop();
+        }
+    }
+
     QModelIndex itemIndex = indexAt(e->pos());
     if (!itemIndex.isValid()) {
         if (QToolTip::isVisible()) {

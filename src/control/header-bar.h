@@ -105,7 +105,7 @@ private:
 
     Peony::AdvancedLocationBar *m_location_bar;
 
-    ViewTypeMenu *m_view_type_menu;
+//    ViewTypeMenu *m_view_type_menu;
     SortTypeMenu *m_sort_type_menu;
     OperationMenu *m_operation_menu;
 

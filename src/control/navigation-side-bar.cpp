@@ -273,6 +273,17 @@ void NavigationSideBar::mousePressEvent(QMouseEvent *event)
     QTreeView::mousePressEvent(event);
 }
 
+void NavigationSideBar::mouseMoveEvent(QMouseEvent *event)
+{
+    if (m_long_touch_timer->isActive()) {
+        if (qAbs(m_last_touch_pos.x() - event->x() > 5)
+                || qAbs(m_last_touch_pos.y() - event->y() > 5)) {
+            m_long_touch_timer->stop();
+        }
+    }
+    QTreeView::mouseMoveEvent(event);
+}
+
 void NavigationSideBar::mouseReleaseEvent(QMouseEvent *event)
 {
     if (m_long_touch_timer->isActive())

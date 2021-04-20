@@ -60,6 +60,7 @@ protected:
     void focusInEvent(QFocusEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
 
 private:
     Peony::SideBarProxyFilterSortModel *m_proxy_model;
