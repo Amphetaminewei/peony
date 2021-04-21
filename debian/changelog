@@ -1,3 +1,9 @@
+peony (3.2.2+0421) v101; urgency=medium
+
+  * 增加触摸滚动支持
+
+ -- wangweinan <wangweinan@kylinos.cn>  Thu, 25 Mar 2021 16:20:35 +0800
+
 peony (3.2.2+0325) v101; urgency=medium
 
   * 主版本更新
